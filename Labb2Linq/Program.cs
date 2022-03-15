@@ -93,7 +93,8 @@ namespace Labb2Linq
             static void allaLärareSomUndervisarMAtte()
             {
                 Console.Clear();
-                Console.WriteLine("Hämta alla lärare som undervisa matte");              
+                Console.WriteLine("Hämta alla lärare som undervisa matte");
+                Console.WriteLine();
                 SkolaDbContext DB = new SkolaDbContext();
                 var matchTeachers = from a in DB.Kurser
                                     join b in DB.Lärare
@@ -108,8 +109,7 @@ namespace Labb2Linq
 
                 foreach (var item in matchTeachers)
                 {
-                    Console.WriteLine(item.kursnamn);
-                    Console.WriteLine($"{item.förnamn} {item.efternamn}");
+                    Console.WriteLine($"{item.förnamn} {item.efternamn} undervisar {item.kursnamn}");
                 }
                 Console.ReadKey();
                 Console.Clear();
@@ -123,18 +123,27 @@ namespace Labb2Linq
                                          join b in DB.Klasser on a._Klass.Id equals b.Id
                                          join c in DB.Kurser on b.Id equals c._Klass.Id
                                          join d in DB.Lärare on c._Lärare.Id equals d.Id
-                                         orderby c.kursNamn
                                          select new
-                                         {
-                                             kurs = c.kursNamn,
+                                         {                                           
                                              elevFnamn = a.förNamn,
                                              elevEnamn = a.efterNamn,
                                              lärareFnamn = d.förNamn,
-                                             lärareEnamn = d.efterNamn
+                                             lärareEnamn = d.efterNamn,
+                                             kurs = c.kursNamn,
+
                                          }).Distinct();
+                int i = 2;
                 foreach (var item in teachersWstudents)
                 {
-                    Console.WriteLine($"Elever: {item.elevFnamn} {item.elevEnamn}                       Lärare: {item.lärareFnamn} {item.lärareEnamn}                       Kurs: {item.kurs}");
+                    Console.SetCursorPosition(0, i);
+                    Console.Write($"Elev: {item.elevFnamn} {item.elevEnamn}");                 
+
+                    Console.SetCursorPosition(25, i);
+                    Console.WriteLine($"Lärare: { item.lärareFnamn} { item.lärareEnamn}");
+                    Console.SetCursorPosition(55, i++);
+                    Console.WriteLine($"Kurs: {item.kurs}");
+
+                    
                 }
                 Console.ReadKey();
                 Console.Clear();
@@ -142,7 +151,7 @@ namespace Labb2Linq
             static void inehållerKurs()
             {
                 Console.Clear();
-                Console.WriteLine("Kolla om ämnen tabell Contains programmering1 eller inte.");               
+                Console.WriteLine("Kolla om ämnen tabell Contains programmering1 eller inte.");
                 SkolaDbContext DB = new SkolaDbContext();
                 string search = "Programmering 1";
                 if (DB.Kurser.Select(x => x.kursNamn).ToList().Contains(search))
@@ -183,7 +192,7 @@ namespace Labb2Linq
                     else
                     {
                         Console.WriteLine("Kursen finns inte....försök igen...");
-                        
+
                     }
                 }
             }
@@ -193,20 +202,26 @@ namespace Labb2Linq
                 Console.WriteLine("Uppdatera en student record om sin lärare är Anas till Reidar.");
                 Console.WriteLine();
                 SkolaDbContext DB = new SkolaDbContext();
-             
-                    if (DB.Kurser.Select(s => s._Lärare.förNamn).ToList().Equals("Anas"))
-                    {
-                        var changeTeacher = DB.Lärare.Where(s => s.förNamn == "Reidar" && s.efterNamn == "Nilsen").FirstOrDefault();
-                        changeTeacher.förNamn = "Anas";
-                        changeTeacher.efterNamn = "Qlok";
 
-                        var changeTeacher2 = DB.Lärare.Where(s => s.förNamn == "Anas" && s.efterNamn == "Qlok").FirstOrDefault();
-                        changeTeacher2.förNamn = "Reidar";
-                        changeTeacher2.efterNamn = "Gustavsson";
+                if (DB.Kurser.Select(s => s._Lärare.förNamn).ToList().Contains("Anas"))
+                {
+                    var changeTeacher = DB.Lärare.Where(s => s.förNamn == "Reidar" && s.efterNamn == "Nilsen").FirstOrDefault();
+                    changeTeacher.förNamn = "Anas";
+                    changeTeacher.efterNamn = "Qlok";
 
-                        DB.SaveChanges();
-                    }
+                    var changeTeacher2 = DB.Lärare.Where(s => s.förNamn == "Anas" && s.efterNamn == "Qlok").FirstOrDefault();
+                    changeTeacher2.förNamn = "Reidar";
+                    changeTeacher2.efterNamn = "Nilsen";
+
+
+                    Console.WriteLine(changeTeacher.förNamn + " och " + changeTeacher2.förNamn + " har nu bytt plats i databasen");
+                    DB.SaveChanges();
+                }
                 
+                else
+                {
+                    Console.WriteLine("Fel");
+                }
                 Console.ReadKey();
                 Console.Clear();
             }
